@@ -2,7 +2,6 @@
 #define VEC2_H
 
 #include <cmath>
-
 #include "vec3.h"
 
 class vec2{

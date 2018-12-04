@@ -8,8 +8,7 @@
 #include <string>
 #include <vector>
 #include <string.h>
-#include "../Math/vec2.h"
-#include "../Math/vec3.h"
+#include "../Math/Math.h"
 
 
 struct ivec3{
