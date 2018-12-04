@@ -54,7 +54,7 @@ int main(void) {
   //  std::cin >> x1.x >> x1.y >> y1.x >> y1.y;
   window = new MainWindow(WIDTH, HEIGHT, "Hello");
   Model headModel = ObjLoader::load_obj("../Models/head.obj");
-  vec3 white = {255, 255, 255};
+
 
 
   
@@ -81,6 +81,7 @@ int main(void) {
       v2.position = to_worldcoords(v2.position);      
       v3.position = to_worldcoords(v3.position);
 
+      vec3 white = {rand() % 255, rand()%255, rand()%255};
       v1.color = white;
       v2.color = white;
       v3.color = white;

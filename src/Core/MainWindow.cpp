@@ -36,14 +36,16 @@ void MainWindow::clear(uint8_t r, uint8_t g, uint8_t b){
   SDL_SetRenderDrawColor(renderer, r, g, b, 255);
   SDL_RenderClear(renderer);
   SDL_SetRenderDrawColor(renderer, 0, 0 ,0, 0);
-  for (int i=width*height; i--;) z_buffer[i] = INT_MIN;
 
+  //@Note need to find efficient way to do it
+  for (int i=width*height; i--;) z_buffer[i] = INT_MIN;
+  numQueries = 0;
 }
 
 
 
 void MainWindow::render(){
-
+  std::cout << numQueries << std::endl;
   SDL_RenderPresent(renderer);
 
 }
@@ -215,11 +217,14 @@ void MainWindow::draw_triangle(Vertex3d v0, Vertex3d v1, Vertex3d v2){
 
 
   //Sulley's algorith to determine the front facing or back facing triangle
-  //if faceDir < 0 then backfacing else front facing
-  //  int faceDir = vec2::cross(v0.position, v1.position) + vec2::cross(v1.position, v2.position) + vec2::cross(v2.position, v0.position);
-  //  if(faceDir < 0) return;
+  //@Note didn't worked with z-buffer
 
+  // faceDir < 0 then backfacing else front facing but opposite is working
 
+ int faceDir = vec2::cross(v0.position, v1.position) + vec2::cross(v1.position, v2.position) + vec2::cross(v2.position, v0.position);
+   if(faceDir > 0) return;
+
+  numQueries ++;
   //Calculation of bounding box for given triangle
   //@Note maybe need to change the implementation to raster faster
   int minX = int(std::fmin(std::fmin(v0.position.x, v1.position.x), v2.position.x));

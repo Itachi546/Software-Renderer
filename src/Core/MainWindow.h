@@ -25,6 +25,7 @@ class MainWindow{
   bool running;
   vec3 barycentric(const vec2& v0, const vec2& v1, const vec2& v2, const vec2& px);
   int* z_buffer;
+  int numQueries;
  public:
   explicit MainWindow(int width, int height, const char* title);
   void destroy();
