@@ -3,12 +3,12 @@
 
 #include "vec2.h"
 
-struct Vertex2d{
-  vec2 position;
+struct Vertex3d{
+  vec3 position;
   vec3 color;
 
-  Vertex2d(){}
-  Vertex2d(vec2 position, vec3 color) : position(position), color(color){}
+  Vertex3d(){}
+  Vertex3d(vec3 position, vec3 color) : position(position), color(color){}
 };
 
 

@@ -41,6 +41,12 @@ MainWindow* window;
 
 // }
 
+
+vec3 to_worldcoords(vec3 v) {
+  return vec3(int((v.x+1.0f)*WIDTH/2.0f+0.5f), HEIGHT - int((v.y+1.0f)*HEIGHT/2.0f+0.5f), v.z);
+}
+
+
 int main(void) {
 
   //  vec2 x1, y1;
@@ -48,47 +54,45 @@ int main(void) {
   //  std::cin >> x1.x >> x1.y >> y1.x >> y1.y;
   window = new MainWindow(WIDTH, HEIGHT, "Hello");
   Model headModel = ObjLoader::load_obj("../Models/head.obj");
+  vec3 white = {255, 255, 255};
 
+
+  
   while(window->is_open()){
+  
     window->clear(0, 0, 0);
     window->poll_events();
     
     //    KochCurve(0, -300, 278, 160);
     //    KochCurve(278, 160, -278, 160);
     //    KochCurve(-278, 160, 0, -300);
-    vec3 white = {255, 255, 255};
+
     for(unsigned int i = 0; i < headModel.indices.size(); i+=3){
-      Vertex2d v1, v2, v3;
+      Vertex3d v1, v2, v3;
       int i1 = headModel.indices[i];
       int i2 = headModel.indices[i + 1];
       int i3 = headModel.indices[i + 2];
       
-      v1.position = vec2(headModel.position[i1]);
-      v2.position = vec2(headModel.position[i2]);
-      v3.position = vec2(headModel.position[i3]);
+      v1.position = headModel.position[i1];
+      v2.position = headModel.position[i2];
+      v3.position = headModel.position[i3];
 
-      v1.position.x = (v1.position.x + 1) * WIDTH/2;
-      v1.position.y = HEIGHT - (v1.position.y + 1) * HEIGHT/2;
+      v1.position = to_worldcoords(v1.position);
+      v2.position = to_worldcoords(v2.position);      
+      v3.position = to_worldcoords(v3.position);
 
-      v2.position.x = (v2.position.x + 1) * WIDTH/2.0f;
-      v2.position.y = HEIGHT - (v2.position.y + 1) * HEIGHT/2;
+      v1.color = white;
+      v2.color = white;
+      v3.color = white;
 
-      v3.position.x = (v3.position.x + 1) * WIDTH/2;
-      v3.position.y = HEIGHT - (v3.position.y + 1) * HEIGHT/2;
+      window->draw_triangle(v1, v2, v3);
+      //      window->draw_line(v1.position, v2.position, white);
+      //      window->draw_line(v2.position, v3.position, white);
+      //      window->draw_line(v3.position, v1.position, white);
+    }
 
-      
-      //v1.color = headModel.normal[i1]* 255;
-      //      v1.color = headModel.normal[i2]* 255;
-      //      v1.color = headModel.normal[i3]* 255;
-
-      //      window->draw_triangle(v1, v2, v3);
-      window->draw_line(v1.position, v2.position, white);
-      window->draw_line(v2.position, v3.position, white);
-      window->draw_line(v3.position, v1.position, white);
-}
-
-    
     window->render();
+
     if(InputManager::IsKeyPressed(InputManager::KEY_ESCAPE))
       break;
   }

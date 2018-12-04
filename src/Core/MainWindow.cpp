@@ -2,6 +2,7 @@
 #include "InputManager.h"
 #include <SDL2/SDL.h>
 #include <cmath>
+#include <climits>
 #include "../Math/Math.h"
 
 
@@ -17,14 +18,17 @@ MainWindow::MainWindow(int width, int height, const char* title){
 
   SDL_SetWindowTitle(window, title);
 
+  z_buffer = new int[width * height];
 }
 
 
 void MainWindow::destroy(){
-  
+
+  delete []z_buffer;
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
   SDL_Quit();
+  
 }
 
 
@@ -32,6 +36,8 @@ void MainWindow::clear(uint8_t r, uint8_t g, uint8_t b){
   SDL_SetRenderDrawColor(renderer, r, g, b, 255);
   SDL_RenderClear(renderer);
   SDL_SetRenderDrawColor(renderer, 0, 0 ,0, 0);
+  for (int i=width*height; i--;) z_buffer[i] = INT_MIN;
+
 }
 
 
@@ -75,6 +81,14 @@ void MainWindow::poll_events(){
 
 
 void MainWindow::plot_pixel(int x, int y, vec3 color){
+
+  SDL_SetRenderDrawColor(renderer, color.x, color.y, color.z, 255);
+  SDL_RenderDrawPoint(renderer, x, y);
+  SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+}
+
+void MainWindow::plot_pixel(int x, int y, int z, vec3 color){
 
   SDL_SetRenderDrawColor(renderer, color.x, color.y, color.z, 255);
   SDL_RenderDrawPoint(renderer, x, y);
@@ -197,13 +211,13 @@ vec3 MainWindow::barycentric(const vec2& v0, const vec2& v1, const vec2&v2, cons
 }
 
 
-void MainWindow::draw_triangle(Vertex2d v0, Vertex2d v1, Vertex2d v2){
+void MainWindow::draw_triangle(Vertex3d v0, Vertex3d v1, Vertex3d v2){
 
 
   //Sulley's algorith to determine the front facing or back facing triangle
   //if faceDir < 0 then backfacing else front facing
-  int faceDir = vec2::cross(v0.position, v1.position) + vec2::cross(v1.position, v2.position) + vec2::cross(v2.position, v0.position);
-  if(faceDir < 0) return;
+  //  int faceDir = vec2::cross(v0.position, v1.position) + vec2::cross(v1.position, v2.position) + vec2::cross(v2.position, v0.position);
+  //  if(faceDir < 0) return;
 
 
   //Calculation of bounding box for given triangle
@@ -213,8 +227,6 @@ void MainWindow::draw_triangle(Vertex2d v0, Vertex2d v1, Vertex2d v2){
 				       		      
   int minY = int(std::fmin(std::fmin(v0.position.y, v1.position.y), v2.position.y));
   int maxY = int(std::fmax(std::fmax(v0.position.y, v1.position.y), v2.position.y));
-
-
 
   //Clipping the vertices against the screen 
   minX = int(std::max(minX, 0));
@@ -236,8 +248,13 @@ void MainWindow::draw_triangle(Vertex2d v0, Vertex2d v1, Vertex2d v2){
       //Garoud shading of color
       vec3 color = v0.color * barycentric_value.x  + v1.color * barycentric_value.y  +  v2.color * barycentric_value.z;
 
-      plot_pixel(i, j, color);
+      int zCoords = barycentric_value.x * v0.position.z + barycentric_value.y * v1.position.z + barycentric_value.z * v2.position.z;
 
+
+      if(z_buffer[i + j * width] < zCoords){
+	z_buffer[i + j * width] = zCoords;
+      	plot_pixel(i, j, color);
+      }
     }
   }
 }
