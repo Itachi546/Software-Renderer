@@ -23,8 +23,8 @@ class MainWindow{
   SDL_Window* window;
   unsigned int width, height;
   bool running;
-  float z_buffer[800 * 600];
-  int numQueries;
+  float* z_buffer;
+
 
   vec3 barycentric(const vec2& v0, const vec2& v1, const vec2& v2, const vec2& px);
   void clear_depth();

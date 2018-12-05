@@ -37,18 +37,19 @@ public:
   static mat3 rotate(float angle){
     mat3 m;
     angle = ((angle) * M_PI)/180.0f;
-
-    m.m[0][0] = cos(angle);
+    float sinA = sin(angle);
+    float cosA = cos(angle);
+    m.m[0][0] = cosA;
     m.m[0][1] = 0;
-    m.m[0][2] = -sin(angle);
+    m.m[0][2] = -sinA;
 
     m.m[1][0] = 0;
     m.m[1][1] = 1;
     m.m[1][2] = 0;
 
-    m.m[2][0] = sin(angle);
+    m.m[2][0] = sinA;
     m.m[2][1] = 0;
-    m.m[2][2] = cos(angle);
+    m.m[2][2] = cosA;
 
     return m;
   }

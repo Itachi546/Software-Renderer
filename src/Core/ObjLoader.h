@@ -1,7 +1,6 @@
 #ifndef OBJ_LOADER_H
 #define OBJ_LOADER_H
 
-
 #include <iostream>
 #include <fstream>
 #include <cstdio>
@@ -9,7 +8,6 @@
 #include <vector>
 #include <string.h>
 #include "../Math/Math.h"
-
 
 struct ivec3{
   int x;
@@ -54,6 +52,7 @@ class ObjLoader {
 
       if (!strcmp(temp, "v ")) {
 	vec3 pos;
+	//Need to find alternate way
 	sscanf(coordinates[i]->c_str(), "v %f %f %f", &pos.x, &pos.y, &pos.z);
 	modelData.position.push_back(pos);
 	modelData.normal.push_back(vec3(0, 0, 0));

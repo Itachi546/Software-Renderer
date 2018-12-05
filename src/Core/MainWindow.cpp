@@ -11,6 +11,7 @@ MainWindow::MainWindow(int width, int height, const char* title){
 
   this->width = width;
   this->height = height;
+ 
   running = true;
 
   SDL_Init(SDL_INIT_VIDEO);
@@ -18,13 +19,13 @@ MainWindow::MainWindow(int width, int height, const char* title){
 
   SDL_SetWindowTitle(window, title);
 
-  //z_buffer = new float[width * height];
+  z_buffer = new float[width * height];
 }
 
 
 void MainWindow::destroy(){
 
-  //  delete []z_buffer;
+  delete []z_buffer;
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
   SDL_Quit();
@@ -33,7 +34,6 @@ void MainWindow::destroy(){
 void MainWindow::clear_depth(){
   //@Note need to find efficient way to do it
   for (unsigned int i= 0; i < width * height; i++) z_buffer[i] = FLT_MAX;
-  numQueries = 0;  
 }
 
 void MainWindow::clear(uint8_t r, uint8_t g, uint8_t b){
@@ -47,7 +47,7 @@ void MainWindow::clear(uint8_t r, uint8_t g, uint8_t b){
 
 
 void MainWindow::render(){
-  //  std::cout << numQueries << std::endl;
+
   SDL_RenderPresent(renderer);
 
 }
@@ -207,11 +207,6 @@ vec3 MainWindow::barycentric(const vec2& a, const vec2& b, const vec2&c, const v
     v = (Area of v2v0p)/(Area of triangle v0v1v2)
     w = (Area of v0v1p)/(Area of triangle v0v1v2)
    */
-  //  vec3 u = vec3::cross(vec3(v2.x - v0.x, v1.x - v0.x, v0.x - p.x), vec3(v2.y - v0.y, v1.y - v0.y, v0.y - p.y));
-
-  //  if(std::abs(u.z) < 1) return vec3(-1, -1, -1);
-
-  //  return vec3(1.0f - (u.x + u.y)/ u.z, u.y/u.z, u.x/u.z);
   float u, v, w;
   vec2 v0 = b - a, v1 = c - a, v2 = p - a;
   float den = v0.x * v1.y - v1.x * v0.y;
@@ -228,7 +223,6 @@ void MainWindow::draw_triangle(vec2 v0, vec2 v1, vec2 v2){
   draw_line(v0, v1, vec3(255,255,255));
   draw_line(v1, v2, vec3(255,255,255));
   draw_line(v2, v0, vec3(255,255,255));
-
 }
 
 
@@ -238,11 +232,14 @@ void MainWindow::draw_triangle(Vertex3d v0, Vertex3d v1, Vertex3d v2){
   //@Note didn't worked with z-buffer
 
   // faceDir < 0 then backfacing else front facing but opposite is working
+  if(v0.position.z < -0.1)
+    return;
+
 
   int faceDir = vec2::cross(v0.position, v1.position) + vec2::cross(v1.position, v2.position) + vec2::cross(v2.position, v0.position);
   if(faceDir >  0) return;
+  
 
-  numQueries ++;
   //Calculation of bounding box for given triangle
   //@Note maybe need to change the implementation to raster faster
   int minX = int(std::fmin(std::fmin(v0.position.x, v1.position.x), v2.position.x));
@@ -258,7 +255,6 @@ void MainWindow::draw_triangle(Vertex3d v0, Vertex3d v1, Vertex3d v2){
   minY = int(std::max(minY, 0));
   maxY = int(std::min(maxY, int(height-1)));
   
-
   for(int i = minX; i <= maxX; ++i){
     for(int j = minY; j <= maxY; ++j){
 
@@ -279,32 +275,4 @@ void MainWindow::draw_triangle(Vertex3d v0, Vertex3d v1, Vertex3d v2){
       }
     }
   }
-
 }
-
-
-/*
-void MainWindow::draw_triangle(Vertex3d v0, Vertex3d v1, Vertex3d v2){
-
-  vec2 bboxmin(width -1,  height-1); 
-  vec2 bboxmax(0, 0); 
-  vec2 clamp(width-1, height-1); 
-
-  bboxmin.x = int(std::fmin(std::fmin(v0.position.x, v1.position.x), v2.position.x));
-  bboxmax.x = int(std::fmax(std::fmax(v0.position.x, v1.position.x), v2.position.x));
-				       		      
-  bboxmin.y = int(std::fmin(std::fmin(v0.position.y, v1.position.y), v2.position.y));
-  bboxmax.y = int(std::fmax(std::fmax(v0.position.y, v1.position.y), v2.position.y));
-
-
-  vec2 P; 
-  for (P.x=bboxmin.x; P.x<=bboxmax.x; P.x++) { 
-    for (P.y=bboxmin.y; P.y<=bboxmax.y; P.y++) { 
-      vec3 bc_screen  = barycentric(v0.position, v1.position, v2.position, P); 
-      if (bc_screen.x<0 || bc_screen.y<0 || bc_screen.z<0) continue; 
-      vec3 color = v0.color * bc_screen.x + v1.color * bc_screen.y + v2.color * bc_screen.z;
-      plot_pixel(P.x, P.y, color); 
-    } 
-  } 
-}
-*/

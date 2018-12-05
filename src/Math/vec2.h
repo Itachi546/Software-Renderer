@@ -7,10 +7,12 @@
 class vec2{
 
 public:
+
   vec2(float _x, float _y){
     x = _x;
     y = _y;
   }
+
   vec2(const vec3& v){
     x = v.x;
     y = v.y;
@@ -21,15 +23,6 @@ public:
   vec2(const vec2& v){
     x = v.x;
     y = v.y;
-  }
-
-  float operator[](int index){
-    if(index == 0)
-      return x;
-    else if (index == 1)
-      return 1;
-    else
-      assert(0);
   }
 
   inline  float lengthSquared() const{
