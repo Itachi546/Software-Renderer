@@ -32,7 +32,10 @@ public:
   inline  float length() const {
     return sqrtf( x * x + y * y);
   }
-
+  
+  static vec2 abs(vec2 v){
+    return vec2(fabs(v.x), fabs(v.y));
+  }
   static float length(const vec2& v)  {
     return sqrtf( v.x * v.x + v.y * v.y);
   }

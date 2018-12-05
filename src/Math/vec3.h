@@ -40,6 +40,10 @@ class vec3{
     return sqrtf( x * x + y * y + z * z);
   }
 
+  static vec3 abs(vec3 v){
+    return vec3(fabs(v.x), fabs(v.y), fabs(v.z));
+  }
+
   static float length(const vec3& v)  {
     return sqrtf( v.x * v.x + v.y * v.y + v.z * v.z);
   }

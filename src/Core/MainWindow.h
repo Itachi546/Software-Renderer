@@ -23,9 +23,12 @@ class MainWindow{
   SDL_Window* window;
   unsigned int width, height;
   bool running;
-  vec3 barycentric(const vec2& v0, const vec2& v1, const vec2& v2, const vec2& px);
-  int* z_buffer;
+  float z_buffer[800 * 600];
   int numQueries;
+
+  vec3 barycentric(const vec2& v0, const vec2& v1, const vec2& v2, const vec2& px);
+  void clear_depth();
+
  public:
   explicit MainWindow(int width, int height, const char* title);
   void destroy();

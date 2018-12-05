@@ -18,34 +18,36 @@ MainWindow::MainWindow(int width, int height, const char* title){
 
   SDL_SetWindowTitle(window, title);
 
-  z_buffer = new int[width * height];
+  //z_buffer = new float[width * height];
 }
 
 
 void MainWindow::destroy(){
 
-  delete []z_buffer;
+  //  delete []z_buffer;
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
   SDL_Quit();
   
 }
-
+void MainWindow::clear_depth(){
+  //@Note need to find efficient way to do it
+  for (unsigned int i= 0; i < width * height; i++) z_buffer[i] = FLT_MAX;
+  numQueries = 0;  
+}
 
 void MainWindow::clear(uint8_t r, uint8_t g, uint8_t b){
   SDL_SetRenderDrawColor(renderer, r, g, b, 255);
   SDL_RenderClear(renderer);
   SDL_SetRenderDrawColor(renderer, 0, 0 ,0, 0);
 
-  //@Note need to find efficient way to do it
-  for (int i=width*height; i--;) z_buffer[i] = INT_MIN;
-  numQueries = 0;
+  clear_depth();
 }
 
 
 
 void MainWindow::render(){
-  std::cout << numQueries << std::endl;
+  //  std::cout << numQueries << std::endl;
   SDL_RenderPresent(renderer);
 
 }
@@ -221,8 +223,8 @@ void MainWindow::draw_triangle(Vertex3d v0, Vertex3d v1, Vertex3d v2){
 
   // faceDir < 0 then backfacing else front facing but opposite is working
 
- int faceDir = vec2::cross(v0.position, v1.position) + vec2::cross(v1.position, v2.position) + vec2::cross(v2.position, v0.position);
-   if(faceDir > 0) return;
+  int faceDir = vec2::cross(v0.position, v1.position) + vec2::cross(v1.position, v2.position) + vec2::cross(v2.position, v0.position);
+  if(faceDir >  0) return;
 
   numQueries ++;
   //Calculation of bounding box for given triangle
@@ -235,10 +237,10 @@ void MainWindow::draw_triangle(Vertex3d v0, Vertex3d v1, Vertex3d v2){
 
   //Clipping the vertices against the screen 
   minX = int(std::max(minX, 0));
-  maxX = int(std::min(maxX, int(width)));
+  maxX = int(std::min(maxX, int(width-1)));
 
   minY = int(std::max(minY, 0));
-  maxY = int(std::min(maxY, int(height)));
+  maxY = int(std::min(maxY, int(height-1)));
 
 
   for(int i = minX; i <= maxX; ++i){
@@ -253,10 +255,10 @@ void MainWindow::draw_triangle(Vertex3d v0, Vertex3d v1, Vertex3d v2){
       //Garoud shading of color
       vec3 color = v0.color * barycentric_value.x  + v1.color * barycentric_value.y  +  v2.color * barycentric_value.z;
 
-      int zCoords = barycentric_value.x * v0.position.z + barycentric_value.y * v1.position.z + barycentric_value.z * v2.position.z;
+      float zCoords = barycentric_value.x * v0.position.z + barycentric_value.y * v1.position.z + barycentric_value.z * v2.position.z;
 
 
-      if(z_buffer[i + j * width] < zCoords){
+      if(z_buffer[i + j * width] > zCoords){
 	z_buffer[i + j * width] = zCoords;
       	plot_pixel(i, j, color);
       }

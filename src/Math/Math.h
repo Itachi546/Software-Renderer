@@ -2,6 +2,7 @@
 #define MATH_H
 
 #include "vec2.h"
+#include "mat.h"
 
 struct Vertex3d{
   vec3 position;

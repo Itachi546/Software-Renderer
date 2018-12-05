@@ -1,4 +1,4 @@
-#include <iostream>
+ #include <iostream>
 #include "Core/MainWindow.h"
 #include "Core/InputManager.h"
 #include "Math/Math.h"
@@ -49,54 +49,70 @@ vec3 to_worldcoords(vec3 v) {
 
 int main(void) {
 
-  //  vec2 x1, y1;
-  //  std::cout << "Enter the point: ";
-  //  std::cin >> x1.x >> x1.y >> y1.x >> y1.y;
-  window = new MainWindow(WIDTH, HEIGHT, "Hello");
-  Model headModel = ObjLoader::load_obj("../Models/head.obj");
+    window = new MainWindow(WIDTH, HEIGHT, "Hello");
+    Model headModel = ObjLoader::load_obj("../Models/cube.obj");
+    Vertex3d v1, v2, v3;
+    v1.color = vec3(255, 0, 0);
+    v2.color = vec3(0, 255, 0);
+    v3.color = vec3(0, 0, 255);
 
+    mat4 perspective = mat4::perspective(70.0f, float(WIDTH)/HEIGHT);
+    mat3 rotate;
+    float angle = 0;
+    vec3 translate = vec3(0, 0, -6);
 
-
-  
-  while(window->is_open()){
-  
-    window->clear(0, 0, 0);
-    window->poll_events();
     
-    //    KochCurve(0, -300, 278, 160);
-    //    KochCurve(278, 160, -278, 160);
-    //    KochCurve(-278, 160, 0, -300);
+    while(window->is_open()){
+  
+      window->clear(0, 0, 0);
+      window->poll_events();
+    
+      //    KochCurve(0, -300, 278, 160);
+      //    KochCurve(278, 160, -278, 160);
+      //    KochCurve(-278, 160, 0, -300);
+      for(unsigned int i = 0; i < headModel.indices.size(); i+=3){
 
-    for(unsigned int i = 0; i < headModel.indices.size(); i+=3){
-      Vertex3d v1, v2, v3;
-      int i1 = headModel.indices[i];
-      int i2 = headModel.indices[i + 1];
-      int i3 = headModel.indices[i + 2];
+	rotate = mat3::rotate(angle);
+	angle+=0.01;
+	
+        int i1 = headModel.indices[i];
+        int i2 = headModel.indices[i + 1];
+        int i3 = headModel.indices[i + 2];
       
-      v1.position = headModel.position[i1];
-      v2.position = headModel.position[i2];
-      v3.position = headModel.position[i3];
+        v1.position = rotate * headModel.position[i1] + translate;
+        v2.position = rotate * headModel.position[i2] + translate;
+        v3.position = rotate * headModel.position[i3] + translate;
 
-      v1.position = to_worldcoords(v1.position);
-      v2.position = to_worldcoords(v2.position);      
-      v3.position = to_worldcoords(v3.position);
+	v1.position = to_worldcoords(perspective * v1.position);
+	v2.position = to_worldcoords(perspective * v2.position);      
+	v3.position = to_worldcoords(perspective * v3.position);
 
-      vec3 white = {rand() % 255, rand()%255, rand()%255};
-      v1.color = white;
-      v2.color = white;
-      v3.color = white;
+	//	v1.color = vec3::abs(headModel.normal[i1] * 255);
+	//	v2.color = vec3::abs(headModel.normal[i2] * 255);
+	//	v3.color = vec3::abs(headModel.normal[i3] * 255);
+	
+	window->draw_triangle(v1, v2, v3);
+	//	window->draw_line(v1.position, v2.position, vec3(255,255,255));
+	//	window->draw_line(v2.position, v3.position, vec3(255,255,255));
+	//	window->draw_line(v3.position, v1.position, vec3(255,255,255));
+      }
 
-      window->draw_triangle(v1, v2, v3);
-      //      window->draw_line(v1.position, v2.position, white);
-      //      window->draw_line(v2.position, v3.position, white);
-      //      window->draw_line(v3.position, v1.position, white);
+      window->render();
+
+      if(InputManager::IsKeyPressed(InputManager::KEY_ESCAPE))
+	break;
+      if(InputManager::IsKeyPressed(InputManager::KEY_UP))
+	translate.y -=0.1;
+      else if (InputManager::IsKeyPressed(InputManager::KEY_DOWN))
+	translate.y +=0.1;
+
+      if(InputManager::IsKeyPressed(InputManager::KEY_LEFT))
+	translate.z -=0.1;
+      else if (InputManager::IsKeyPressed(InputManager::KEY_RIGHT))
+	translate.z +=0.1;
+
     }
 
-    window->render();
-
-    if(InputManager::IsKeyPressed(InputManager::KEY_ESCAPE))
-      break;
-  }
-
-  window->destroy();
+    window->destroy();
+    return 0;
 }
