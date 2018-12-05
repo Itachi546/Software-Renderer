@@ -6,6 +6,9 @@
 
 const int WIDTH = 800;
 const int HEIGHT = 600;
+bool wireframe = false;
+
+
 MainWindow* window;
 
 // void KochCurve(int x0, int y0, int x1, int y1, int limit = 5){
@@ -50,17 +53,16 @@ vec3 to_worldcoords(vec3 v) {
 int main(void) {
 
     window = new MainWindow(WIDTH, HEIGHT, "Hello");
-    Model headModel = ObjLoader::load_obj("../Models/cube.obj");
+    Model headModel = ObjLoader::load_obj("../Models/susan.obj");
     Vertex3d v1, v2, v3;
     v1.color = vec3(255, 0, 0);
     v2.color = vec3(0, 255, 0);
     v3.color = vec3(0, 0, 255);
 
-    mat4 perspective = mat4::perspective(70.0f, float(WIDTH)/HEIGHT);
-    mat3 rotate;
+    mat4 projection = mat4::perspective(70.0f, float(WIDTH)/HEIGHT);
+    mat4 rotate;
     float angle = 0;
     vec3 translate = vec3(0, 0, -6);
-
     
     while(window->is_open()){
   
@@ -72,29 +74,32 @@ int main(void) {
       //    KochCurve(-278, 160, 0, -300);
       for(unsigned int i = 0; i < headModel.indices.size(); i+=3){
 
-	rotate = mat3::rotate(angle);
-	angle+=0.01;
-	
+	rotate = mat4::rotate(angle, vec3(0, 1, 0));
+	angle+=0.000005;
+
         int i1 = headModel.indices[i];
         int i2 = headModel.indices[i + 1];
         int i3 = headModel.indices[i + 2];
-      
-        v1.position = rotate * headModel.position[i1] + translate;
-        v2.position = rotate * headModel.position[i2] + translate;
-        v3.position = rotate * headModel.position[i3] + translate;
 
-	v1.position = to_worldcoords(perspective * v1.position);
-	v2.position = to_worldcoords(perspective * v2.position);      
-	v3.position = to_worldcoords(perspective * v3.position);
 
-	//	v1.color = vec3::abs(headModel.normal[i1] * 255);
-	//	v2.color = vec3::abs(headModel.normal[i2] * 255);
-	//	v3.color = vec3::abs(headModel.normal[i3] * 255);
-	
-	window->draw_triangle(v1, v2, v3);
-	//	window->draw_line(v1.position, v2.position, vec3(255,255,255));
-	//	window->draw_line(v2.position, v3.position, vec3(255,255,255));
-	//	window->draw_line(v3.position, v1.position, vec3(255,255,255));
+	//Applying world transform
+        v1.position = translate + rotate * headModel.position[i1];
+        v2.position = translate + rotate * headModel.position[i2];
+        v3.position = translate + rotate * headModel.position[i3];
+
+		
+	v1.position = to_worldcoords(projection * v1.position);
+	v2.position = to_worldcoords(projection * v2.position);
+	v3.position = to_worldcoords(projection * v3.position);
+
+
+	//Visualizing normal as the color
+	v1.color = vec3::abs(headModel.normal[i1] * 255);
+	v2.color = vec3::abs(headModel.normal[i2] * 255);
+	v3.color = vec3::abs(headModel.normal[i3] * 255);
+
+	if(!wireframe) window->draw_triangle(v1, v2, v3);
+	else  window->draw_triangle(v1.position, v2.position, v3.position);
       }
 
       window->render();
@@ -111,6 +116,11 @@ int main(void) {
       else if (InputManager::IsKeyPressed(InputManager::KEY_RIGHT))
 	translate.z +=0.1;
 
+      if(InputManager::IsKeyPressed(InputManager::KEY_SPACE)){
+	//@Note Need to implement the key repeat handing also
+	InputManager::KeyUp(InputManager::KEY_SPACE);
+	wireframe = !wireframe;
+      }
     }
 
     window->destroy();

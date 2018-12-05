@@ -23,7 +23,14 @@ public:
     y = v.y;
   }
 
-  
+  float operator[](int index){
+    if(index == 0)
+      return x;
+    else if (index == 1)
+      return 1;
+    else
+      assert(0);
+  }
 
   inline  float lengthSquared() const{
     return ( x * x + y * y);

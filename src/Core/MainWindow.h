@@ -42,6 +42,7 @@ class MainWindow{
   void draw_line(vec2 v1, vec2 v2, vec3 color);
   void draw_circle(vec2 center, int radius, vec3 color);
   void draw_triangle(Vertex3d v0, Vertex3d v1, Vertex3d v2);
+  void draw_triangle(vec2 v0, vec2 v1, vec2 v2);
 };
 
 
