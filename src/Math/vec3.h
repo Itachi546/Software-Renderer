@@ -81,6 +81,11 @@ class vec3{
 
     return result;
   }
+
+  static vec3 reflect(const vec3& v1, const vec3& v2){
+    float val = 2.0f * dot(v1, v2);
+    return ((v2 * val) - v1);
+  }
  
   vec3 operator+(const vec3& v) {
     return vec3(x+v.x, y+v.y, z + v.z);
@@ -92,6 +97,10 @@ class vec3{
 
   vec3 operator*(float scalar){
     return vec3(x * scalar, y * scalar, z * scalar);
+  }
+
+  vec3 operator*(vec3 v){
+    return vec3(x * v.x, y * v.y, z * v.z);
   }
   
   vec3 operator/(float scalar){
@@ -122,6 +131,10 @@ class vec3{
     return *this;
   }
 
+  vec3 operator-(){
+    return vec3(-x, -y, -z);
+  }
+
   friend vec3 operator+(const vec3& v1, const vec3& v2){
     return vec3(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z);
   }
@@ -131,8 +144,13 @@ class vec3{
   }
 
   friend vec3 operator*(const vec3& v1, float scalar){
-    return vec3(v1.x * scalar, v1.x * scalar, v1.z * scalar);
+    return vec3(v1.x * scalar, v1.y * scalar, v1.z * scalar);
   }
+
+ friend vec3 operator*(const vec3& v1, vec3 v2){
+   return vec3(v1.x * v2.x, v1.y * v2.y, v1.z * v2.z);
+  }
+ 
 
   
   float x;

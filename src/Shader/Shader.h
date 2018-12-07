@@ -40,14 +40,21 @@ class Shader{
 	return (ambientColor + diffuseColor + specularColor);
 
      */
-
     normal = vec3::normalize(normal);
-    vec3 lightDir = vec3::normalize(v0.position - light.position);
+    vec3 lightDir = vec3::normalize(light.position - v0.position);
     float diffuse = vec3::dot(normal, lightDir);
-
     diffuse = std::max(diffuse, 0.1f);
+    
+    vec3 viewDir = vec3::normalize(cameraPos - v0.position);
+    vec3 reflectDir = vec3::normalize(vec3::reflect(viewDir, normal));
+    float specular = std::max(vec3::dot(normal, reflectDir), 0.0f);
+    specular = std::pow(specular, 128.0f);
 
-    return vec3(255, 0, 0) * diffuse;
+
+    vec3 result =  vec3(255, 0, 0) * (diffuse);
+
+    return result;
+
   }
   
 };

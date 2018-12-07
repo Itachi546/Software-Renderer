@@ -22,21 +22,14 @@ int main(void) {
 
 
     mat4 projection = mat4::perspective(70.0f, float(WIDTH)/HEIGHT);
-    mat4 rotate;
+    mat3 rotate;
     vec3 translate = vec3(0, 0, -6);
 
     bool wireframe = false;
     float angle = 0;    
     //Load Obj model
-    std::vector<TriangleMesh> meshes = ObjLoader::load_obj("../Models/cube.obj");
+    std::vector<TriangleMesh> meshes = ObjLoader::load_obj("../Models/susan.obj");
 
-    for(unsigned int i = 0; i <meshes.size(); ++i){
-      std::cout << meshes[i].n0 << std::endl;
-      std::cout << meshes[i].n1 << std::endl;
-      std::cout << meshes[i].n2 << std::endl;
-    }
-
-    
     while(window->is_open()){
 
       double startTime = SDL_GetTicks();
@@ -44,11 +37,10 @@ int main(void) {
       window->poll_events();
 
       Shader shader;
-      shader.set_uniforms(vec3(0, 5, 0), vec3(0, 0, -1));
+      shader.set_uniforms(vec3(2.0f, 2.0f, 2.0f) + translate, -translate);
       
-      rotate = mat4::rotate(45.0f, vec3(1, 1, 1));
+      rotate = mat3::rotate(angle);
 
-      //      mat3 normalTransform = mat3::transpose(mat3::inverse(rotate));
       for(unsigned int i = 0; i < meshes.size(); ++i){
 
 	Vertex3d v1, v2, v3;
@@ -60,9 +52,9 @@ int main(void) {
 
 	
 	
-	v1.color = vec3::abs(meshes[i].n0) * 255.0f;
-	v2.color = vec3::abs(meshes[i].n1) * 255.0f;
-	v3.color = vec3::abs(meshes[i].n2) * 255.0f;
+	v1.color = shader.per_vertexshader(v1, rotate * meshes[i].n0);
+	v2.color = shader.per_vertexshader(v2,rotate * meshes[i].n1);
+	v3.color = shader.per_vertexshader(v3, rotate * meshes[i].n2);
 
 	v1.position = to_worldcoords(projection * v1.position);
 	v2.position = to_worldcoords(projection * v2.position);
