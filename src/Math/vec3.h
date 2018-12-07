@@ -49,9 +49,10 @@ class vec3{
   }
 
   static vec3 normalize(const vec3 v) {
+
     float len = vec3::length(v);
     if(fabs(len) <= EPSILON){
-      Assert("Divide By Zero");
+      return vec3(0, 0, 0);
     }
     vec3 result;
     float invLength = 1 / len;

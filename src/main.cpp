@@ -3,6 +3,7 @@
 #include "Core/InputManager.h"
 #include "Math/Math.h"
 #include "Core/ObjLoader.h"
+#include "Shader/Shader.h"
 #include <SDL2/SDL.h>
 
 const int WIDTH = 800;
@@ -21,13 +22,20 @@ int main(void) {
 
 
     mat4 projection = mat4::perspective(70.0f, float(WIDTH)/HEIGHT);
-    mat3 rotate;
+    mat4 rotate;
     vec3 translate = vec3(0, 0, -6);
 
     bool wireframe = false;
     float angle = 0;    
     //Load Obj model
-    std::vector<TriangleMesh> meshes = ObjLoader::load_obj("../Models/susan.obj");
+    std::vector<TriangleMesh> meshes = ObjLoader::load_obj("../Models/cube.obj");
+
+    for(unsigned int i = 0; i <meshes.size(); ++i){
+      std::cout << meshes[i].n0 << std::endl;
+      std::cout << meshes[i].n1 << std::endl;
+      std::cout << meshes[i].n2 << std::endl;
+    }
+
     
     while(window->is_open()){
 
@@ -35,8 +43,12 @@ int main(void) {
       window->clear(0, 0, 0);
       window->poll_events();
 
+      Shader shader;
+      shader.set_uniforms(vec3(0, 5, 0), vec3(0, 0, -1));
       
-      rotate = mat3::rotate(angle);
+      rotate = mat4::rotate(45.0f, vec3(1, 1, 1));
+
+      //      mat3 normalTransform = mat3::transpose(mat3::inverse(rotate));
       for(unsigned int i = 0; i < meshes.size(); ++i){
 
 	Vertex3d v1, v2, v3;
@@ -45,19 +57,18 @@ int main(void) {
         v2.position = translate + rotate * meshes[i].v1;
 	v3.position = translate + rotate * meshes[i].v2;
 
-		
+
+	
+	
+	v1.color = vec3::abs(meshes[i].n0) * 255.0f;
+	v2.color = vec3::abs(meshes[i].n1) * 255.0f;
+	v3.color = vec3::abs(meshes[i].n2) * 255.0f;
+
 	v1.position = to_worldcoords(projection * v1.position);
 	v2.position = to_worldcoords(projection * v2.position);
 	v3.position = to_worldcoords(projection * v3.position);
 
-       
-	//Visualizing normal as the color
-	v1.color = vec3::abs(meshes[i].n0 * 255);
-	v2.color = vec3::abs(meshes[i].n1 * 255);
-	v3.color = vec3::abs(meshes[i].n2 * 255);
-
 	window->draw_triangle(v1, v2, v3);
-
 	if(wireframe)  window->draw_triangle(v1.position, v2.position, v3.position);	   
       }
 
@@ -77,7 +88,7 @@ int main(void) {
       else if (InputManager::IsKeyPressed(InputManager::KEY_A))	        translate.y -=0.1;
     
       double deltaTime = SDL_GetTicks() - startTime;
-      angle += deltaTime * 0.5f;
+      angle += deltaTime * 0.1f;
 
       if(InputManager::IsKeyPressed(InputManager::KEY_SPACE)){
 	//@Note Need to implement the key repeat handing also

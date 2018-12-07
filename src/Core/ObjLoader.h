@@ -55,13 +55,10 @@ class ObjLoader {
       std::cout << "Failed to Open File" << std::endl;
     }
     std::vector<std::string*> coordinates;
+
     std::vector<vec3> normals;
     std::vector<vec3> position;    
-    std::vector<unsigned int> indices;
-
     std::vector<TriangleMesh> meshes;
-    //Model modelData;
-
     std::string line;
 
     while (std::getline(inFile, line)) {
@@ -97,9 +94,9 @@ class ObjLoader {
 	mesh.v1 = position[s2.x - 1];
 	mesh.v2 = position[s3.x - 1];
 
-	mesh.n0 = normals[s1.x - 1];
-	mesh.n1 = normals[s2.x - 1];
-	mesh.n2 = normals[s3.x - 1];
+	mesh.n0 = normals[s1.z - 1];
+	mesh.n1 = normals[s2.z - 1];
+	mesh.n2 = normals[s3.z - 1];
 
 	meshes.push_back(mesh);
 	//	modelData.normal[s1.x - 1] = normals[s1.z - 1];

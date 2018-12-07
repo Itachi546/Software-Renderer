@@ -54,6 +54,61 @@ public:
     return m;
   }
 
+
+  static mat3 inverse(mat3 mat)
+  {
+    mat3 result;
+
+    float cofactor0 = mat.m[1][1] * mat.m[2][2] - mat.m[1][2] * mat.m[2][1];
+    float cofactor1 = mat.m[1][0] * mat.m[2][2] - mat.m[2][0] * mat.m[1][2];
+    float cofactor2 = mat.m[0][3] * mat.m[2][1] - mat.m[2][0] * mat.m[1][1];
+    float det = mat.m[0][0] * cofactor0 + mat.m[0][1] * cofactor1 + mat.m[0][2] * cofactor2;
+    if (fabs(det) < 10e-6)
+      {
+	std::cout << "Singular Matrix" << std::endl;
+	assert(false);
+	return result;
+      }
+
+    float invDet = 1.0f / det;
+    result.m[0][0] = invDet * cofactor0;
+    result.m[0][1] = invDet * cofactor1;
+    result.m[0][2] = invDet * cofactor2;
+
+    result.m[1][0] = invDet * (mat.m[0][1] * mat.m[2][2] - mat.m[2][1] * mat.m[0][2]);
+    result.m[1][1] = invDet * (mat.m[1][0] * mat.m[2][2] - mat.m[1][2] * mat.m[2][0]);
+    result.m[1][2] = invDet * (mat.m[0][0] * mat.m[2][1] - mat.m[2][0] * mat.m[0][1]);
+
+    result.m[2][0] = invDet * (mat.m[0][1] * mat.m[1][2] - mat.m[1][0] * mat.m[0][2]);
+    result.m[2][1] = invDet * (mat.m[0][0] * mat.m[1][2] - mat.m[1][0] * mat.m[0][2]);
+    result.m[2][2] = invDet * (mat.m[0][0] * mat.m[1][1] - mat.m[0][1] * mat.m[1][0]);
+
+    return result;
+  }
+
+
+  static mat3 transpose(const mat3 & in)
+  {
+    mat3 mat;
+	
+    mat.m[0][0] = in.m[2][0];
+    mat.m[0][1] = in.m[1][0];
+    mat.m[0][2] = in.m[0][0];
+
+    mat.m[1][0] = in.m[2][1];
+    mat.m[1][1] = in.m[1][1];
+    mat.m[1][2] = in.m[0][1];
+
+    mat.m[2][0] = in.m[2][2];
+    mat.m[2][1] = in.m[1][2];
+    mat.m[2][2] = in.m[0][2];
+
+    return mat;
+  }
+
+
+
+
   friend vec3 operator*(mat3 m, vec3 v){
     vec3 result;
     result.x = v.x * m.m[0][0] + v.y * m.m[1][0] + v.z * m.m[2][0];
