@@ -17,6 +17,7 @@ MainWindow::MainWindow(int width, int height, const char* title){
   SDL_Init(SDL_INIT_VIDEO);
   SDL_CreateWindowAndRenderer(width, height, 0, &window, &renderer);
 
+
   SDL_SetWindowTitle(window, title);
 
   z_buffer = new float[width * height];
@@ -256,7 +257,7 @@ void MainWindow::draw_triangle(Vertex3d v0, Vertex3d v1, Vertex3d v2){
   maxY = int(std::min(maxY, int(height-1)));
   
   for(int i = minX; i <= maxX; ++i){
-    for(int j = minY; j <= maxY; ++j){
+    for(int j = minY; j <= maxY;  ++j){
 
       //for a point to be inside the triangle it's barycentric value must be all positive and sum must be equal to 1
       vec3 barycentric_value = barycentric(v0.position, v1.position, v2.position, vec2(i, j));

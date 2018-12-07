@@ -3,7 +3,7 @@
 #include "Core/InputManager.h"
 #include "Math/Math.h"
 #include "Core/ObjLoader.h"
-
+#include <SDL2/SDL.h>
 const int WIDTH = 800;
 const int HEIGHT = 600;
 bool wireframe = false;
@@ -53,39 +53,38 @@ vec3 to_worldcoords(vec3 v) {
 int main(void) {
 
     window = new MainWindow(WIDTH, HEIGHT, "Hello");
-    Model headModel = ObjLoader::load_obj("../Models/susan.obj");
+    std::vector<TriangleMesh> meshes = ObjLoader::load_obj("../Models/susan.obj");
     Vertex3d v1, v2, v3;
     v1.color = vec3(255, 0, 0);
     v2.color = vec3(0, 255, 0);
     v3.color = vec3(0, 0, 255);
 
     mat4 projection = mat4::perspective(70.0f, float(WIDTH)/HEIGHT);
-    mat4 rotate;
+    mat3 rotate;
     float angle = 0;
     vec3 translate = vec3(0, 0, -6);
     
+    double frameTime = 1000.0/60.0;
+
+
     while(window->is_open()){
-  
+
+      double startTime = SDL_GetTicks();
       window->clear(0, 0, 0);
       window->poll_events();
     
       //    KochCurve(0, -300, 278, 160);
       //    KochCurve(278, 160, -278, 160);
       //    KochCurve(-278, 160, 0, -300);
-      for(unsigned int i = 0; i < headModel.indices.size(); i+=3){
+      for(unsigned int i = 0; i < meshes.size(); ++i){
 
-	rotate = mat4::rotate(angle, vec3(0, 1, 0));
-	angle+=0.000005;
-
-        int i1 = headModel.indices[i];
-        int i2 = headModel.indices[i + 1];
-        int i3 = headModel.indices[i + 2];
-
+	rotate = mat3::rotate(angle);
+       	angle+=0.00005;
 
 	//Applying world transform
-        v1.position = translate + rotate * headModel.position[i1];
-        v2.position = translate + rotate * headModel.position[i2];
-        v3.position = translate + rotate * headModel.position[i3];
+        v1.position = translate + rotate * meshes[i].v0;
+        v2.position = translate + rotate * meshes[i].v1;
+	v3.position = translate + rotate * meshes[i].v2;
 
 		
 	v1.position = to_worldcoords(projection * v1.position);
@@ -94,9 +93,10 @@ int main(void) {
 
 
 	//Visualizing normal as the color
-	v1.color = vec3::abs(headModel.normal[i1] * 255);
-	v2.color = vec3::abs(headModel.normal[i2] * 255);
-	v3.color = vec3::abs(headModel.normal[i3] * 255);
+	v1.color = vec3::abs(meshes[i].n0 * 255);
+	v2.color = vec3::abs(meshes[i].n1 * 255);
+	v3.color = vec3::abs(meshes[i].n2 * 255);
+
 
 	if(!wireframe) window->draw_triangle(v1, v2, v3);
 	else  window->draw_triangle(v1.position, v2.position, v3.position);
@@ -115,6 +115,13 @@ int main(void) {
 	translate.z -=0.1;
       else if (InputManager::IsKeyPressed(InputManager::KEY_RIGHT))
 	translate.z +=0.1;
+      
+
+      double deltaTime = SDL_GetTicks() - startTime;
+
+      if(deltaTime < frameTime){
+	SDL_Delay(frameTime - deltaTime);
+      }
 
       if(InputManager::IsKeyPressed(InputManager::KEY_SPACE)){
 	//@Note Need to implement the key repeat handing also
@@ -122,6 +129,7 @@ int main(void) {
 	wireframe = !wireframe;
       }
     }
+
 
     window->destroy();
     return 0;

@@ -107,6 +107,7 @@ public:
 
   static  mat4 rotate(float angle, vec3 axis)
   {
+    angle = (M_PI / 180) * angle;
     int x = axis.x;
     int y = axis.y;
     int z = axis.z;
