@@ -15,7 +15,6 @@ class vec2;
 class vec3;
 struct  Vertex3d;
 
-
 class MainWindow{
 
  private:
@@ -38,11 +37,14 @@ class MainWindow{
   void clear(uint8_t r, uint8_t g, uint8_t b);
   void set_title(const char* title);
   void plot_pixel(int x, int y, vec3 color);
-  void plot_pixel(int x, int y, int z, vec3 color);
   void draw_line(vec2 v1, vec2 v2, vec3 color);
-  void draw_circle(vec2 center, int radius, vec3 color);
+
   void draw_triangle(Vertex3d v0, Vertex3d v1, Vertex3d v2);
   void draw_triangle(vec2 v0, vec2 v1, vec2 v2);
+
+  void scan_triangle(Vertex3d v0, Vertex3d v1, Vertex3d v2);
+  void triangle(Vertex3d v0, Vertex3d v1, Vertex3d v2);
+  
 };
 
 

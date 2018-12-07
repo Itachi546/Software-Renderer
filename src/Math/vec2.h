@@ -25,6 +25,11 @@ public:
     y = v.y;
   }
 
+  static void swap(vec2& v1, vec2& v2){
+    vec2 temp = v2;
+    v2 = v1;
+    v1 = temp;
+  }
   inline  float lengthSquared() const{
     return ( x * x + y * y);
   }
@@ -32,7 +37,7 @@ public:
   inline  float length() const {
     return sqrtf( x * x + y * y);
   }
-  
+
   static vec2 abs(vec2 v){
     return vec2(fabs(v.x), fabs(v.y));
   }

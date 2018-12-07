@@ -15,7 +15,7 @@ struct ivec3{
   int z;
 };
 
-struct Model {
+/*struct Model {
   // Position
   std::vector<vec3> position;
   // Normal
@@ -23,7 +23,7 @@ struct Model {
 
   std::vector<unsigned int > indices;
 };
-
+*/
 struct TriangleMesh{
   vec3 v0, v1, v2;
   vec3 n0, n1, n2;

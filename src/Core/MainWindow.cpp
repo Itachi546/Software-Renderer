@@ -11,14 +11,14 @@ MainWindow::MainWindow(int width, int height, const char* title){
 
   this->width = width;
   this->height = height;
- 
   running = true;
 
   SDL_Init(SDL_INIT_VIDEO);
   SDL_CreateWindowAndRenderer(width, height, 0, &window, &renderer);
-
-
   SDL_SetWindowTitle(window, title);
+
+  //Enable default vertical sync
+  SDL_GL_SetSwapInterval(1);
 
   z_buffer = new float[width * height];
 }
@@ -33,7 +33,7 @@ void MainWindow::destroy(){
   
 }
 void MainWindow::clear_depth(){
-  //@Note need to find efficient way to do it
+  //@Note need to find efficient way to clear the depth buffer
   for (unsigned int i= 0; i < width * height; i++) z_buffer[i] = FLT_MAX;
 }
 
@@ -41,16 +41,13 @@ void MainWindow::clear(uint8_t r, uint8_t g, uint8_t b){
   SDL_SetRenderDrawColor(renderer, r, g, b, 255);
   SDL_RenderClear(renderer);
   SDL_SetRenderDrawColor(renderer, 0, 0 ,0, 0);
-
   clear_depth();
 }
 
 
 
 void MainWindow::render(){
-
   SDL_RenderPresent(renderer);
-
 }
 
 bool MainWindow::is_open(){
@@ -86,19 +83,9 @@ void MainWindow::poll_events(){
 
 
 void MainWindow::plot_pixel(int x, int y, vec3 color){
-
   SDL_SetRenderDrawColor(renderer, color.x, color.y, color.z, 255);
   SDL_RenderDrawPoint(renderer, x, y);
   SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-
-}
-
-void MainWindow::plot_pixel(int x, int y, int z, vec3 color){
-
-  SDL_SetRenderDrawColor(renderer, color.x, color.y, color.z, 255);
-  SDL_RenderDrawPoint(renderer, x, y);
-  SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-
 }
 
 
@@ -163,43 +150,6 @@ void MainWindow::draw_line(vec2 v1, vec2 v2, vec3 color){
   }
 }
 
-void MainWindow::draw_circle(vec2 center, int radius, vec3 color){
-
-  int x = radius;
-  int y = 0;
-
-  if(radius == 0){
-    plot_pixel(int(center.x), int(center.y), color);
-    return;
-  }
-
-  int p0 = 0;
-  
-  while(x >= y){
-
-    plot_pixel(x + center.x, y + center.y, color);
-    plot_pixel(y + center.y, x + center.x, color);
-
-    plot_pixel(-y + center.x, x + center.y, color);
-    plot_pixel(-x + center.x, y + center.y, color);
-
-    plot_pixel(-x + center.x, -y + center.y, color);
-    plot_pixel(-y + center.x, -x + center.y, color);
-
-    plot_pixel(y + center.x, -x + center.y, color);
-    plot_pixel(x + center.x, -y + center.y, color);
-
-    if(p0 <= 0){
-      y += 1;
-      p0 += 2 * y + 1;
-    }else{
-      x -= 1;
-      p0 -= 2 * x + 1;
-    }
-
-  }
-}
-
 vec3 MainWindow::barycentric(const vec2& a, const vec2& b, const vec2&c, const vec2& p){
 
   //Calculate the barycentric value from given vertices
@@ -214,11 +164,11 @@ vec3 MainWindow::barycentric(const vec2& a, const vec2& b, const vec2&c, const v
   v = (v2.x * v1.y - v1.x * v2.y) / den;
   w = (v0.x * v2.y - v2.x * v0.y) / den;
   u = 1.0f - v - w;  
-
   return vec3(u, v, w);
 }
 
 void MainWindow::draw_triangle(vec2 v0, vec2 v1, vec2 v2){
+
   int faceDir = vec2::cross(v0, v1) + vec2::cross(v1, v2) + vec2::cross(v2, v0);
   if(faceDir >  0) return;
   draw_line(v0, v1, vec3(255,255,255));
@@ -230,12 +180,7 @@ void MainWindow::draw_triangle(vec2 v0, vec2 v1, vec2 v2){
 void MainWindow::draw_triangle(Vertex3d v0, Vertex3d v1, Vertex3d v2){
 
   //Sulley's algorith to determine the front facing or back facing triangle
-  //@Note didn't worked with z-buffer
-
   // faceDir < 0 then backfacing else front facing but opposite is working
-  if(v0.position.z < -0.1)
-    return;
-
 
   int faceDir = vec2::cross(v0.position, v1.position) + vec2::cross(v1.position, v2.position) + vec2::cross(v2.position, v0.position);
   if(faceDir >  0) return;
@@ -269,11 +214,11 @@ void MainWindow::draw_triangle(Vertex3d v0, Vertex3d v1, Vertex3d v2){
       vec3 color = v0.color * barycentric_value.x  + v1.color * barycentric_value.y  +  v2.color * barycentric_value.z;
       float zCoords = barycentric_value.x * v0.position.z + barycentric_value.y * v1.position.z + barycentric_value.z * v2.position.z;
 
-
-      if(z_buffer[i + j * width] > zCoords){
+      if(z_buffer[i + j * width] >= zCoords){
 	z_buffer[i + j * width] = zCoords;
       	plot_pixel(i, j, color);
       }
     }
   }
 }
+
