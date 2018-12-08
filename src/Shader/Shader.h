@@ -1,6 +1,5 @@
 #include "../Math/Math.h"
 
-
 struct Light{
   vec3 position;
 };
@@ -15,7 +14,7 @@ class Shader{
     this->cameraPos = cameraPos;
   }
   
-  vec3 per_vertexshader(Vertex3d v0, vec3 normal){
+  vec3 vertex_lighting(Vertex3d v0, vec3 normal){
     /*
 
 	vec3 lightDir = normalize(light.position - vertex_position);	
@@ -46,13 +45,18 @@ class Shader{
     diffuse = std::max(diffuse, 0.1f);
     
     vec3 viewDir = vec3::normalize(cameraPos - v0.position);
-    vec3 reflectDir = vec3::normalize(vec3::reflect(viewDir, normal));
-    float specular = std::max(vec3::dot(normal, reflectDir), 0.0f);
-    specular = std::pow(specular, 128.0f);
+    vec3 halfwayVector = vec3::normalize(viewDir + lightDir);
+    float specular = std::max(vec3::dot(normal, halfwayVector), 0.0f);
+    specular = std::pow(specular, 32.0f);
 
+    float totalColor = std::min(diffuse + specular, 1.0f);
 
-    vec3 result =  vec3(255, 0, 0) * (diffuse);
-
+    vec3 result =  vec3(0, 255, 255) * totalColor;
+    
+    result.x = std::min(result.x, 255.0f);
+    result.y = std::min(result.y, 255.0f);
+    result.z = std::min(result.z, 255.0f);
+      
     return result;
 
   }

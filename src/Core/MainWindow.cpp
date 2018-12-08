@@ -14,11 +14,11 @@ MainWindow::MainWindow(int width, int height, const char* title){
   running = true;
 
   SDL_Init(SDL_INIT_VIDEO);
+  //Enable default vertical sync
+  SDL_GL_SetSwapInterval(1);
   SDL_CreateWindowAndRenderer(width, height, 0, &window, &renderer);
   SDL_SetWindowTitle(window, title);
 
-  //Enable default vertical sync
-  SDL_GL_SetSwapInterval(1);
 
   z_buffer = new float[width * height];
 }
@@ -83,7 +83,7 @@ void MainWindow::poll_events(){
 
 
 void MainWindow::plot_pixel(int x, int y, vec3 color){
-  SDL_SetRenderDrawColor(renderer, color.x, color.y, color.z, 255);
+  SDL_SetRenderDrawColor(renderer, int(color.x), int(color.y), int(color.z), 255);
   SDL_RenderDrawPoint(renderer, x, y);
   SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 }
